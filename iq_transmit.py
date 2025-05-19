@@ -3,13 +3,21 @@ from SoapySDR import *  # SOAPY_SDR_ constants
 import numpy as np
 import time
 import os
+import argparse
+
+# ==== PARSE COMMAND-LINE ARGUMENTS ====
+parser = argparse.ArgumentParser(description="Transmit IQ file using HackRF")
+parser.add_argument("iq_file", help="Path to the .cfile IQ file")
+parser.add_argument("--loop", action="store_true", help="Loop playback")
+args = parser.parse_args()
+
+IQ_FILE = args.iq_file
+LOOP = args.loop
 
 # ==== CONFIGURATION ====
-IQ_FILE = "20250515_1937_433.000MHz.cfile"  # Your IQ file
-FREQ = 433e6                # Frequency to transmit at (must match original or as needed)
+FREQ = 433e6                # Frequency to transmit at
 SAMPLE_RATE = 2e6           # Match the sample rate used for recording
 GAIN = 30                   # TX gain (0–47 for HackRF)
-LOOP = False                # Set True to loop playback
 
 # ==== LOAD IQ FILE ====
 if not os.path.exists(IQ_FILE):
@@ -21,8 +29,8 @@ total_samples = len(iq_data)
 print(f"Loaded {total_samples} samples from {IQ_FILE}")
 
 # ==== SETUP SDR ====
-args = dict(driver="hackrf")
-sdr = SoapySDR.Device(args)
+args_sdr = dict(driver="hackrf")
+sdr = SoapySDR.Device(args_sdr)
 
 sdr.setSampleRate(SOAPY_SDR_TX, 0, SAMPLE_RATE)
 sdr.setFrequency(SOAPY_SDR_TX, 0, FREQ)
